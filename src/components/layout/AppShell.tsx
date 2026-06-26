@@ -11,9 +11,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Home', icon: '🏠', activeIcon: '🏡' },
-  { to: '/scan', label: 'Scan', icon: '📷', activeIcon: '📸' },
-  { to: '/badges', label: 'Badges', icon: '🏅', activeIcon: '🥇' },
+  { to: '/', label: 'Acasa', icon: '🏠', activeIcon: '🏡' },
+  { to: '/scan', label: 'Scaneaza', icon: '📷', activeIcon: '📸' },
+  { to: '/badges', label: 'Insigne', icon: '🏅', activeIcon: '🥇' },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

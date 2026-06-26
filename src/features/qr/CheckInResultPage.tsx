@@ -104,10 +104,10 @@ export function CheckInResultPage() {
 
             <div>
               <h1 className='text-3xl font-black gradient-fire'>
-                Streak alive!
+                Flacara aprinsa!
               </h1>
               <p className='text-text-secondary mt-1'>
-                Day {day.dayNumber} · {day.theme}
+                Ziua {day.dayNumber} · {day.theme}
               </p>
             </div>
 
@@ -125,7 +125,7 @@ export function CheckInResultPage() {
             {/* Verse */}
             <Card className='bg-fire-900/10 border-fire-800/30 text-left'>
               <p className='text-xs font-bold text-fire-400 uppercase tracking-widest mb-2'>
-                Today's Verse
+                Cuvantul de astazi
               </p>
               <p className='text-text-primary text-sm leading-relaxed italic mb-2'>
                 "{day.verse}"
@@ -138,7 +138,7 @@ export function CheckInResultPage() {
             {/* Challenge */}
             <Card className='text-left'>
               <p className='text-xs font-bold text-text-muted uppercase tracking-widest mb-2'>
-                Today's Challenge
+                Provocarea de astazi
               </p>
               <p className='text-text-primary text-sm leading-relaxed'>
                 {day.challenge}
@@ -149,7 +149,7 @@ export function CheckInResultPage() {
               size='lg'
               className='w-full'
               onClick={() => navigate('/')}>
-              Back to home
+              Inapoi acasa
             </Button>
           </motion.div>
         )}
@@ -163,17 +163,17 @@ export function CheckInResultPage() {
             <span className='text-7xl'>✅</span>
             <div>
               <h1 className='text-2xl font-black text-text-primary'>
-                Already done!
+                Deja complet!
               </h1>
               <p className='text-text-secondary mt-1'>
-                You already checked in for Day {day.dayNumber} today.
+                Deja ai deblocat ziua {day.dayNumber} astazi.
               </p>
             </div>
 
             {/* Show verse anyway */}
             <Card className='bg-fire-900/10 border-fire-800/30 text-left w-full'>
               <p className='text-xs font-bold text-fire-400 uppercase tracking-widest mb-2'>
-                Today's Verse
+                Cuvantul de astazi
               </p>
               <p className='text-text-primary text-sm leading-relaxed italic mb-2'>
                 "{day.verse}"
@@ -187,7 +187,7 @@ export function CheckInResultPage() {
               size='lg'
               className='w-full'
               onClick={() => navigate('/')}>
-              Go home
+              Inapoi acasa
             </Button>
           </motion.div>
         )}
@@ -201,10 +201,10 @@ export function CheckInResultPage() {
             <span className='text-7xl'>⏳</span>
             <div>
               <h1 className='text-2xl font-black text-text-primary'>
-                Not yet!
+                Nu inca!
               </h1>
               <p className='text-text-secondary mt-1'>
-                Day {day.dayNumber} unlocks on{' '}
+                Ziua {day.dayNumber} se deblocheaza{' '}
                 <span className='text-fire-400 font-semibold'>
                   {new Date(day.unlockDate).toLocaleDateString('en-US', {
                     weekday: 'long',
@@ -218,7 +218,7 @@ export function CheckInResultPage() {
             <Button
               size='lg'
               onClick={() => navigate('/')}>
-              Back home
+              Inapoi acasa
             </Button>
           </motion.div>
         )}
@@ -232,17 +232,16 @@ export function CheckInResultPage() {
             <span className='text-7xl'>❓</span>
             <div>
               <h1 className='text-2xl font-black text-text-primary'>
-                Invalid code
+                Cod invalid
               </h1>
               <p className='text-text-secondary mt-1'>
-                This doesn't match any camp day. Make sure you're scanning the
-                right QR code.
+                Acest QR code nu este valid. Scaneaza din nou.
               </p>
             </div>
             <Button
               size='lg'
               onClick={() => navigate('/scan')}>
-              Scan again
+              Scaneaza din nou
             </Button>
           </motion.div>
         )}
