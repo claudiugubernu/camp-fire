@@ -1,4 +1,4 @@
-import type { CheckIn, DayConfig, StreakInfo } from "@/types";
+import type { CheckIn, DayConfig, StreakInfo } from '@/types';
 
 /**
  * Calculates the current streak, longest streak, and completion metadata.
@@ -7,7 +7,7 @@ import type { CheckIn, DayConfig, StreakInfo } from "@/types";
  */
 export function calculateStreak(
   checkIns: CheckIn[],
-  days: DayConfig[]
+  days: DayConfig[],
 ): StreakInfo {
   const completedDayIds = new Set(checkIns.map((c) => c.dayId));
 
@@ -66,10 +66,7 @@ export function calculateStreak(
   };
 }
 
-export function isDayCompleted(
-  dayId: string,
-  checkIns: CheckIn[]
-): boolean {
+export function isDayCompleted(dayId: string, checkIns: CheckIn[]): boolean {
   return checkIns.some((c) => c.dayId === dayId);
 }
 

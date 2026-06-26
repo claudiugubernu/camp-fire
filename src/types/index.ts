@@ -1,6 +1,6 @@
 // ─── User & Auth ────────────────────────────────────────────────────────────
 
-export type TeamId = "alpha" | "beta" | "gamma" | "delta";
+export type TeamId = 'alpha' | 'beta' | 'gamma' | 'delta';
 
 export interface CampUser {
   uid: string;
@@ -16,17 +16,17 @@ export interface CheckIn {
   userId: string;
   dayId: string;
   completedAt: number; // unix ms
-  earlyBird: boolean;  // completed before EARLY_BIRD_HOUR
+  earlyBird: boolean; // completed before EARLY_BIRD_HOUR
 }
 
 export interface DayConfig {
-  id: string;          // "day-1" … "day-7"
+  id: string; // "day-1" … "day-7"
   dayNumber: number;
   verse: string;
   verseRef: string;
   challenge: string;
   theme: string;
-  unlockDate: string;  // ISO date "YYYY-MM-DD"
+  unlockDate: string; // ISO date "YYYY-MM-DD"
 }
 
 // ─── Streak ──────────────────────────────────────────────────────────────────
@@ -41,12 +41,12 @@ export interface StreakInfo {
 // ─── Badges ──────────────────────────────────────────────────────────────────
 
 export type BadgeId =
-  | "explorer"
-  | "fire_keeper"
-  | "early_bird"
-  | "three_in_a_row"
-  | "halfway"
-  | "secret_seeker";
+  | 'explorer'
+  | 'fire_keeper'
+  | 'early_bird'
+  | 'three_in_a_row'
+  | 'halfway'
+  | 'secret_seeker';
 
 export interface Badge {
   id: BadgeId;

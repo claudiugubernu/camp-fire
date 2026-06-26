@@ -1,12 +1,12 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { AppProvider } from "@/store/AppContext";
-import App from "./App";
-import "./styles/globals.css";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { AppProvider } from '@/store/AppContext';
+import App from './App';
+import './styles/globals.css';
 
-const rootEl = document.getElementById("root");
-if (!rootEl) throw new Error("Root element not found");
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Root element not found');
 
 createRoot(rootEl).render(
   <StrictMode>
@@ -15,5 +15,5 @@ createRoot(rootEl).render(
         <App />
       </AppProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );

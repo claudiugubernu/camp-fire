@@ -7,11 +7,11 @@ import {
   query,
   where,
   serverTimestamp,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import type { CheckIn } from "@/types";
+} from 'firebase/firestore';
+import { db } from './firebase';
+import type { CheckIn } from '@/types';
 
-const CHECKINS_COLLECTION = "checkins";
+const CHECKINS_COLLECTION = 'checkins';
 const EARLY_BIRD_HOUR = 9; // before 9 AM local time
 
 function makeDocId(userId: string, dayId: string): string {
@@ -24,8 +24,12 @@ function isEarlyBird(): boolean {
 
 export async function performCheckIn(
   userId: string,
-  dayId: string
-): Promise<{ success: boolean; alreadyDone: boolean; checkIn: CheckIn | null }> {
+  dayId: string,
+): Promise<{
+  success: boolean;
+  alreadyDone: boolean;
+  checkIn: CheckIn | null;
+}> {
   const docId = makeDocId(userId, dayId);
   const ref = doc(db, CHECKINS_COLLECTION, docId);
 
@@ -62,7 +66,7 @@ export async function performCheckIn(
 export async function getUserCheckIns(userId: string): Promise<CheckIn[]> {
   const q = query(
     collection(db, CHECKINS_COLLECTION),
-    where("userId", "==", userId)
+    where('userId', '==', userId),
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => {

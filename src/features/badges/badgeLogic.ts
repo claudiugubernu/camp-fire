@@ -1,48 +1,48 @@
-import type { Badge, BadgeId, CheckIn, DayConfig, CampUser } from "@/types";
+import type { Badge, BadgeId, CheckIn, DayConfig, CampUser } from '@/types';
 
-export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, "unlockedAt">> = {
+export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
   explorer: {
-    id: "explorer",
-    name: "Explorer",
-    emoji: "🧭",
-    description: "Complete your very first check-in.",
+    id: 'explorer',
+    name: 'Explorer',
+    emoji: '🧭',
+    description: 'Complete your very first check-in.',
   },
   fire_keeper: {
-    id: "fire_keeper",
-    name: "Fire Keeper",
-    emoji: "🔥",
-    description: "Complete all 7 days of camp. The flame never died.",
+    id: 'fire_keeper',
+    name: 'Fire Keeper',
+    emoji: '🔥',
+    description: 'Complete all 7 days of camp. The flame never died.',
   },
   early_bird: {
-    id: "early_bird",
-    name: "Early Bird",
-    emoji: "🌅",
-    description: "Check in before 9 AM on any day.",
+    id: 'early_bird',
+    name: 'Early Bird',
+    emoji: '🌅',
+    description: 'Check in before 9 AM on any day.',
   },
   three_in_a_row: {
-    id: "three_in_a_row",
-    name: "On Fire",
-    emoji: "⚡",
-    description: "Complete 3 days in a row.",
+    id: 'three_in_a_row',
+    name: 'On Fire',
+    emoji: '⚡',
+    description: 'Complete 3 days in a row.',
   },
   halfway: {
-    id: "halfway",
-    name: "Halfway There",
-    emoji: "🏕️",
-    description: "Complete 4 out of 7 days.",
+    id: 'halfway',
+    name: 'Halfway There',
+    emoji: '🏕️',
+    description: 'Complete 4 out of 7 days.',
   },
   secret_seeker: {
-    id: "secret_seeker",
-    name: "Secret Seeker",
-    emoji: "🕵️",
-    description: "???",
+    id: 'secret_seeker',
+    name: 'Secret Seeker',
+    emoji: '🕵️',
+    description: '???',
   },
 };
 
 export function computeBadges(
   checkIns: CheckIn[],
   days: DayConfig[],
-  user: CampUser
+  user: CampUser,
 ): Badge[] {
   const totalDays = days.length;
   const completed = checkIns.length;
@@ -63,12 +63,17 @@ export function computeBadges(
   }
 
   // Secret badge: user nickname contains "fire" (case-insensitive)
-  const secretUnlocked = user.nickname.toLowerCase().includes("fire");
+  const secretUnlocked = user.nickname.toLowerCase().includes('fire');
 
   const unlockMap: Record<BadgeId, number | null> = {
-    explorer: completed >= 1 ? checkIns.reduce((a, b) => Math.min(a, b.completedAt), Infinity) : null,
+    explorer:
+      completed >= 1
+        ? checkIns.reduce((a, b) => Math.min(a, b.completedAt), Infinity)
+        : null,
     fire_keeper: completed >= totalDays ? Date.now() : null,
-    early_bird: hasEarlyBird ? (checkIns.find((c) => c.earlyBird)?.completedAt ?? null) : null,
+    early_bird: hasEarlyBird
+      ? (checkIns.find((c) => c.earlyBird)?.completedAt ?? null)
+      : null,
     three_in_a_row: maxConsecutive >= 3 ? Date.now() : null,
     halfway: completed >= 4 ? Date.now() : null,
     secret_seeker: secretUnlocked ? Date.now() : null,

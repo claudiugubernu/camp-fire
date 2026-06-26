@@ -4,12 +4,12 @@ import {
   doc,
   setDoc,
   deleteDoc,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import type { DayConfig } from "@/types";
-import { DEFAULT_DAYS } from "@/features/verses/defaultDays";
+} from 'firebase/firestore';
+import { db } from './firebase';
+import type { DayConfig } from '@/types';
+import { DEFAULT_DAYS } from '@/features/verses/defaultDays';
 
-const DAYS_COLLECTION = "days";
+const DAYS_COLLECTION = 'days';
 
 export async function fetchDays(): Promise<DayConfig[]> {
   try {

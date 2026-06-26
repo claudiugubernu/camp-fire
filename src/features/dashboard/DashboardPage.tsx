@@ -61,9 +61,7 @@ export function DashboardPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
             className='text-7xl mb-3'>
-            {streak.current > 0
-              ? '🔥'.repeat(Math.min(streak.current, 7))
-              : '💤'}
+            {streak.current > 0 && '🔥'.repeat(Math.min(streak.current, 7))}
           </motion.div>
           <div className='text-6xl font-black gradient-fire mb-1'>
             {streak.current}
@@ -72,12 +70,12 @@ export function DashboardPage() {
             {streak.current === 1
               ? 'day streak'
               : streak.current === 0
-                ? 'No streak yet'
+                ? 'Nici o flacara inca'
                 : 'day streak'}
           </p>
           {streak.longest > 0 && (
             <p className='text-text-muted text-xs mt-2'>
-              Best: {streak.longest} days 🏆
+              Record: {streak.longest} zile 🏆
             </p>
           )}
         </Card>

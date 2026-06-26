@@ -2,18 +2,13 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   type User,
-} from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { auth, db } from "./firebase";
-import type { CampUser, TeamId } from "@/types";
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from './firebase';
+import type { CampUser, TeamId } from '@/types';
 
-const USERS_COLLECTION = "users";
-const LOCAL_USER_KEY = "campfire_user";
+const USERS_COLLECTION = 'users';
+const LOCAL_USER_KEY = 'campfire_user';
 
 export async function signInAnonymous(): Promise<User> {
   const credential = await signInAnonymously(auth);
@@ -23,10 +18,10 @@ export async function signInAnonymous(): Promise<User> {
 export async function createUserProfile(
   uid: string,
   nickname: string,
-  teamId: TeamId
+  teamId: TeamId,
 ): Promise<CampUser> {
   const userRef = doc(db, USERS_COLLECTION, uid);
-  const profile: Omit<CampUser, "uid"> = {
+  const profile: Omit<CampUser, 'uid'> = {
     nickname,
     teamId,
     createdAt: Date.now(),
@@ -73,7 +68,7 @@ export function clearLocalUser(): void {
 }
 
 export function subscribeToAuthChanges(
-  callback: (user: User | null) => void
+  callback: (user: User | null) => void,
 ): () => void {
   return onAuthStateChanged(auth, callback);
 }
