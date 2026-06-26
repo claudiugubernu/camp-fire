@@ -74,7 +74,7 @@ export function CheckInResultPage() {
             exit={{ opacity: 0 }}
             className='flex flex-col items-center gap-4'>
             <div className='w-16 h-16 border-4 border-surface-700 border-t-fire-400 rounded-full animate-spin' />
-            <p className='text-text-secondary'>Lighting the flame…</p>
+            <p className='text-text-secondary'>Aprindem flacara…</p>
           </motion.div>
         )}
 
