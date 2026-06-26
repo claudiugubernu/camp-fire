@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/store/AppContext';
 import {
   isDayCompleted,
-  isDayAvailable,
   getTodayDayConfig,
 } from '@/features/streak/streakUtils';
 import { Button, Card, DayDot, SectionTitle } from '@/components/ui';
