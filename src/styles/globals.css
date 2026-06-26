@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --color-fire-950: #0d0500;
+  --color-fire-900: #1a0a00;
+  --color-fire-800: #3d1500;
+  --color-fire-700: #7c2d00;
+  --color-fire-600: #c2410c;
+  --color-fire-500: #ea580c;
+  --color-fire-400: #f97316;
+  --color-fire-300: #fb923c;
+  --color-fire-200: #fdba74;
+  --color-fire-100: #fed7aa;
+  --color-fire-50: #fff7ed;
+
+  --color-ember-400: #fbbf24;
+  --color-ember-300: #fcd34d;
+
+  --color-surface-950: #080808;
+  --color-surface-900: #111111;
+  --color-surface-800: #1c1c1c;
+  --color-surface-700: #2a2a2a;
+  --color-surface-600: #3a3a3a;
+
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #525252;
+
+  --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--color-surface-950);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area insets for notched devices */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fire glow effect */
+.glow-fire {
+  text-shadow:
+    0 0 20px rgba(249, 115, 22, 0.8),
+    0 0 40px rgba(249, 115, 22, 0.4);
+}
+
+.glow-fire-box {
+  box-shadow:
+    0 0 20px rgba(249, 115, 22, 0.3),
+    0 0 60px rgba(249, 115, 22, 0.1);
+}
+
+/* Flame animation */
+@keyframes flicker {
+  0%, 100% { transform: scaleY(1) rotate(-1deg); }
+  25% { transform: scaleY(1.05) rotate(1deg); }
+  50% { transform: scaleY(0.97) rotate(-0.5deg); }
+  75% { transform: scaleY(1.03) rotate(0.5deg); }
+}
+
+.animate-flicker {
+  animation: flicker 2s ease-in-out infinite;
+}
+
+@keyframes pulse-fire {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-fire {
+  animation: pulse-fire 1.5s ease-in-out infinite;
+}
+
+/* Streak number pop animation */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Card style */
+.card {
+  background-color: var(--color-surface-800);
+  border: 1px solid var(--color-surface-600);
+  border-radius: var(--radius-2xl);
+}
+
+/* Gradient text */
+.gradient-fire {
+  background: linear-gradient(135deg, #f97316, #ef4444, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-600);
+  border-radius: 2px;
+}
+
+/* QR scanner styles */
+#qr-reader {
+  width: 100% !important;
+  border: none !important;
+}
+
+#qr-reader video {
+  border-radius: 1rem;
+  width: 100% !important;
+}
+
+#qr-reader__scan_region {
+  background: transparent !important;
+}
+
+#qr-reader__dashboard_section_swaplink {
+  color: var(--color-fire-400) !important;
+}
