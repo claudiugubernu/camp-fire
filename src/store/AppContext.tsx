@@ -23,6 +23,9 @@ import { fetchDays } from '@/services/daysService';
 import { calculateStreak } from '@/features/streak/streakUtils';
 import { computeBadges } from '@/features/badges/badgeLogic';
 
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/services/firebase';
+
 // ─── State & Actions ──────────────────────────────────────────────────────────
 
 type Action =
@@ -33,12 +36,14 @@ type Action =
   | { type: 'ADD_CHECKIN'; payload: CheckIn }
   | { type: 'SET_DAYS'; payload: AppState['days'] }
   | { type: 'RECOMPUTE_DERIVED' }
-  | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] };
+  | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] }
+  | { type: 'SET_USER_TEAM_MAP'; payload: Record<string, TeamId> };
 
 const initialState: AppState = {
   user: null,
   checkIns: [],
   allCheckIns: [],
+  userTeamMap: {},
   streak: { current: 0, longest: 0, completedDays: [], totalCompleted: 0 },
   badges: [],
   days: [],
@@ -64,6 +69,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.days,
         state.user,
         state.allCheckIns,
+        state.userTeamMap,
       );
       return { ...state, checkIns: action.payload, streak, badges };
     }
@@ -74,6 +80,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.days,
         state.user,
         action.payload,
+        state.userTeamMap,
       );
       return { ...state, allCheckIns: action.payload, badges };
     }
@@ -86,6 +93,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.days,
         state.user,
         state.allCheckIns,
+        state.userTeamMap,
       );
       return { ...state, checkIns: updated, streak, badges };
     }
@@ -97,8 +105,20 @@ function reducer(state: AppState, action: Action): AppState {
         state.days,
         state.user,
         state.allCheckIns,
+        state.userTeamMap,
       );
       return { ...state, streak, badges };
+    }
+    case 'SET_USER_TEAM_MAP': {
+      if (!state.user) return { ...state, userTeamMap: action.payload };
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        state.allCheckIns,
+        action.payload,
+      );
+      return { ...state, userTeamMap: action.payload, badges };
     }
     default:
       return state;
@@ -143,12 +163,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
           if (profile) {
             dispatch({ type: 'SET_USER', payload: profile });
-            const [checkIns, allCheckIns] = await Promise.all([
+
+            const [checkIns, allCheckIns, usersSnap] = await Promise.all([
               getUserCheckIns(firebaseUser.uid),
               getAllCheckIns(),
+              getDocs(collection(db, 'users')),
             ]);
+
+            const userTeamMap: Record<string, TeamId> = {};
+            usersSnap.docs.forEach((d) => {
+              userTeamMap[d.id] = d.data().teamId as TeamId;
+            });
+
             dispatch({ type: 'SET_CHECKINS', payload: checkIns });
             dispatch({ type: 'SET_ALL_CHECKINS', payload: allCheckIns });
+            dispatch({ type: 'SET_USER_TEAM_MAP', payload: userTeamMap });
           }
         } else {
           dispatch({ type: 'SET_USER', payload: null });

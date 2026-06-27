@@ -232,6 +232,28 @@ export function DashboardPage() {
           )}
         </div>
       </motion.div>
+
+      {/* Reset */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className='pt-4 border-t border-surface-800'>
+        <button
+          onClick={() => {
+            if (
+              confirm(
+                'Ești sigur? Vei pierde progresul local și va trebui să te re-înregistrezi.',
+              )
+            ) {
+              localStorage.clear();
+              window.location.href = '/';
+            }
+          }}
+          className='w-full text-xs text-text-muted py-2 hover:text-red-400 transition-colors'>
+          Sterge contul
+        </button>
+      </motion.div>
     </div>
   );
 }

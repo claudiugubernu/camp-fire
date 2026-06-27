@@ -1,4 +1,11 @@
-import type { Badge, BadgeId, CheckIn, DayConfig, CampUser } from '@/types';
+import type {
+  Badge,
+  BadgeId,
+  CheckIn,
+  DayConfig,
+  CampUser,
+  TeamId,
+} from '@/types';
 
 export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
   explorer: {
@@ -44,6 +51,30 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     emoji: '🕵️',
     description: '???',
   },
+  captain: {
+    id: 'captain',
+    name: 'Căpitanul',
+    emoji: '👑',
+    description: 'Primul din echipa ta care a făcut check-in într-o zi.',
+  },
+  team_spirit: {
+    id: 'team_spirit',
+    name: 'Spirit de Echipă',
+    emoji: '🤝',
+    description: 'Toată echipa ta a completat aceeași zi.',
+  },
+  fire_team: {
+    id: 'fire_team',
+    name: 'Echipa de Foc',
+    emoji: '🏆',
+    description: 'Echipa ta are cel mai mare streak total.',
+  },
+  all_in: {
+    id: 'all_in',
+    name: 'All-In',
+    emoji: '🏅',
+    description: 'Ai deblocat toate celelalte badge-uri.',
+  },
 };
 
 export function computeBadges(
@@ -51,6 +82,7 @@ export function computeBadges(
   days: DayConfig[],
   user: CampUser,
   allCheckIns: CheckIn[] = [],
+  userTeamMap: Record<string, TeamId> = {},
 ): Badge[] {
   const totalDays = days.length;
   const completed = checkIns.length;
@@ -90,6 +122,42 @@ export function computeBadges(
 
   const isFirstFifteen = earlierUsers !== null && earlierUsers < 15;
 
+  const myTeamUserIds = Object.entries(userTeamMap)
+    .filter(([, teamId]) => teamId === user.teamId)
+    .map(([uid]) => uid);
+
+  const isCaptain = days.some((day) => {
+    const dayCheckIns = allCheckIns
+      .filter((c) => c.dayId === day.id && myTeamUserIds.includes(c.userId))
+      .sort((a, b) => a.completedAt - b.completedAt);
+
+    return dayCheckIns.length > 0 && dayCheckIns[0].userId === user.uid;
+  });
+
+  const hasTeamSpirit = days.some((day) => {
+    const usersWhoCompletedDay = new Set(
+      allCheckIns
+        .filter((c) => c.dayId === day.id && myTeamUserIds.includes(c.userId))
+        .map((c) => c.userId),
+    );
+    return (
+      myTeamUserIds.length > 0 &&
+      myTeamUserIds.every((uid) => usersWhoCompletedDay.has(uid))
+    );
+  });
+
+  const checkInsByTeam: Record<string, number> = {};
+  allCheckIns.forEach((c) => {
+    const team = userTeamMap[c.userId];
+    if (team) {
+      checkInsByTeam[team] = (checkInsByTeam[team] ?? 0) + 1;
+    }
+  });
+
+  const myTeamTotal = checkInsByTeam[user.teamId] ?? 0;
+  const maxTeamTotal = Math.max(...Object.values(checkInsByTeam), 0);
+  const isFireTeam = myTeamTotal > 0 && myTeamTotal === maxTeamTotal;
+
   const unlockMap: Record<BadgeId, number | null> = {
     explorer:
       completed >= 1
@@ -103,7 +171,19 @@ export function computeBadges(
     three_in_a_row: maxConsecutive >= 3 ? Date.now() : null,
     halfway: completed >= 4 ? Date.now() : null,
     secret_seeker: secretUnlocked ? Date.now() : null,
+    captain: isCaptain ? Date.now() : null,
+    team_spirit: hasTeamSpirit ? Date.now() : null,
+    fire_team: isFireTeam ? Date.now() : null,
+    all_in: null, // calculat mai jos
   };
+
+  const allOthersUnlocked = (
+    Object.entries(unlockMap) as [BadgeId, number | null][]
+  )
+    .filter(([id]) => id !== 'all_in')
+    .every(([, val]) => val !== null);
+
+  unlockMap.all_in = allOthersUnlocked ? Date.now() : null;
 
   return Object.values(BADGE_DEFINITIONS).map((def) => ({
     ...def,
