@@ -27,6 +27,7 @@ export default function App() {
             <Navigate
               to='/onboarding'
               replace
+              state={{ from: location.pathname }}
             />
           }
         />
