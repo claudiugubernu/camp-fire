@@ -45,11 +45,6 @@ export function BadgesPage() {
                   <p className='text-text-muted text-xs leading-snug'>
                     {badge.description}
                   </p>
-                  {badge.unlockedAt && (
-                    <p className='text-text-muted text-[10px] mt-2'>
-                      {new Date(badge.unlockedAt).toLocaleDateString()}
-                    </p>
-                  )}
                 </Card>
               </motion.div>
             ))}

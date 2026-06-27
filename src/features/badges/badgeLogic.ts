@@ -5,35 +5,42 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     id: 'explorer',
     name: 'Explorer',
     emoji: '🧭',
-    description: 'Complete your very first check-in.',
+    description: 'Primul tău check-in. Aventura începe!',
   },
   fire_keeper: {
     id: 'fire_keeper',
-    name: 'Fire Keeper',
+    name: 'Paznicul Flăcării',
     emoji: '🔥',
-    description: 'Complete all 7 days of camp. The flame never died.',
+    description:
+      'Ai completat toate cele 7 zile. Flacăra nu s-a stins niciodată.',
   },
   early_bird: {
     id: 'early_bird',
-    name: 'Early Bird',
+    name: 'Dimineața Devreme',
     emoji: '🌅',
-    description: 'Check in before 9 AM on any day.',
+    description: 'Ai făcut check-in înainte de ora 9 dimineața.',
+  },
+  first_fifteen: {
+    id: 'first_fifteen',
+    name: 'Primii 15',
+    emoji: '⚡',
+    description: 'Unul dintre primii 15 participanți care au aprins flacăra.',
   },
   three_in_a_row: {
     id: 'three_in_a_row',
-    name: 'On Fire',
-    emoji: '⚡',
-    description: 'Complete 3 days in a row.',
+    name: 'Pe Foc',
+    emoji: '🔥',
+    description: 'Ai completat 3 zile consecutive.',
   },
   halfway: {
     id: 'halfway',
-    name: 'Halfway There',
+    name: 'La Jumătate',
     emoji: '🏕️',
-    description: 'Complete 4 out of 7 days.',
+    description: 'Ai completat 4 din 7 zile.',
   },
   secret_seeker: {
     id: 'secret_seeker',
-    name: 'Secret Seeker',
+    name: 'Căutătorul Secret',
     emoji: '🕵️',
     description: '???',
   },
@@ -43,6 +50,7 @@ export function computeBadges(
   checkIns: CheckIn[],
   days: DayConfig[],
   user: CampUser,
+  allCheckIns: CheckIn[] = [],
 ): Badge[] {
   const totalDays = days.length;
   const completed = checkIns.length;
@@ -65,6 +73,23 @@ export function computeBadges(
   // Secret badge: user nickname contains "fire" (case-insensitive)
   const secretUnlocked = user.nickname.toLowerCase().includes('fire');
 
+  const userFirstCheckIn =
+    checkIns.length > 0
+      ? Math.min(...checkIns.map((c) => c.completedAt))
+      : null;
+
+  const earlierUsers = userFirstCheckIn
+    ? new Set(
+        allCheckIns
+          .filter(
+            (c) => c.completedAt < userFirstCheckIn && c.userId !== user.uid,
+          )
+          .map((c) => c.userId),
+      ).size
+    : null;
+
+  const isFirstFifteen = earlierUsers !== null && earlierUsers < 15;
+
   const unlockMap: Record<BadgeId, number | null> = {
     explorer:
       completed >= 1
@@ -74,6 +99,7 @@ export function computeBadges(
     early_bird: hasEarlyBird
       ? (checkIns.find((c) => c.earlyBird)?.completedAt ?? null)
       : null,
+    first_fifteen: isFirstFifteen && userFirstCheckIn ? userFirstCheckIn : null,
     three_in_a_row: maxConsecutive >= 3 ? Date.now() : null,
     halfway: completed >= 4 ? Date.now() : null,
     secret_seeker: secretUnlocked ? Date.now() : null,

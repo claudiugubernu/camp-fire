@@ -14,7 +14,11 @@ import {
   getUserProfile,
   subscribeToAuthChanges,
 } from '@/services/authService';
-import { getUserCheckIns, performCheckIn } from '@/services/checkInService';
+import {
+  getUserCheckIns,
+  performCheckIn,
+  getAllCheckIns,
+} from '@/services/checkInService';
 import { fetchDays } from '@/services/daysService';
 import { calculateStreak } from '@/features/streak/streakUtils';
 import { computeBadges } from '@/features/badges/badgeLogic';
@@ -28,11 +32,13 @@ type Action =
   | { type: 'SET_CHECKINS'; payload: CheckIn[] }
   | { type: 'ADD_CHECKIN'; payload: CheckIn }
   | { type: 'SET_DAYS'; payload: AppState['days'] }
-  | { type: 'RECOMPUTE_DERIVED' };
+  | { type: 'RECOMPUTE_DERIVED' }
+  | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] };
 
 const initialState: AppState = {
   user: null,
   checkIns: [],
+  allCheckIns: [],
   streak: { current: 0, longest: 0, completedDays: [], totalCompleted: 0 },
   badges: [],
   days: [],
@@ -53,20 +59,45 @@ function reducer(state: AppState, action: Action): AppState {
     case 'SET_CHECKINS': {
       if (!state.user) return { ...state, checkIns: action.payload };
       const streak = calculateStreak(action.payload, state.days);
-      const badges = computeBadges(action.payload, state.days, state.user);
+      const badges = computeBadges(
+        action.payload,
+        state.days,
+        state.user,
+        state.allCheckIns,
+      );
       return { ...state, checkIns: action.payload, streak, badges };
+    }
+    case 'SET_ALL_CHECKINS': {
+      if (!state.user) return { ...state, allCheckIns: action.payload };
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        action.payload,
+      );
+      return { ...state, allCheckIns: action.payload, badges };
     }
     case 'ADD_CHECKIN': {
       const updated = [...state.checkIns, action.payload];
       if (!state.user) return { ...state, checkIns: updated };
       const streak = calculateStreak(updated, state.days);
-      const badges = computeBadges(updated, state.days, state.user);
+      const badges = computeBadges(
+        updated,
+        state.days,
+        state.user,
+        state.allCheckIns,
+      );
       return { ...state, checkIns: updated, streak, badges };
     }
     case 'RECOMPUTE_DERIVED': {
       if (!state.user) return state;
       const streak = calculateStreak(state.checkIns, state.days);
-      const badges = computeBadges(state.checkIns, state.days, state.user);
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        state.allCheckIns,
+      );
       return { ...state, streak, badges };
     }
     default:
@@ -112,8 +143,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
           if (profile) {
             dispatch({ type: 'SET_USER', payload: profile });
-            const checkIns = await getUserCheckIns(firebaseUser.uid);
+            const [checkIns, allCheckIns] = await Promise.all([
+              getUserCheckIns(firebaseUser.uid),
+              getAllCheckIns(),
+            ]);
             dispatch({ type: 'SET_CHECKINS', payload: checkIns });
+            dispatch({ type: 'SET_ALL_CHECKINS', payload: allCheckIns });
           }
         } else {
           dispatch({ type: 'SET_USER', payload: null });
