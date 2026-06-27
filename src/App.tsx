@@ -8,6 +8,7 @@ import { BadgesPage } from '@/features/badges/BadgesPage';
 import { AdminPage } from '@/features/admin/AdminPage';
 import { AppShell } from '@/components/layout/AppShell';
 import { SplashScreen } from '@/components/ui/SplashScreen';
+import { AppreciationsPage } from '@/features/appreciations/AppreciationsPage';
 
 export default function App() {
   const { state } = useApp();
@@ -57,6 +58,10 @@ export default function App() {
         <Route
           path='/admin'
           element={<AdminPage />}
+        />
+        <Route
+          path='/appreciations'
+          element={<AppreciationsPage />}
         />
         <Route
           path='*'

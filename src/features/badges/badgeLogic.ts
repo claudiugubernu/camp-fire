@@ -75,6 +75,24 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     emoji: '🏅',
     description: 'Ai deblocat toate celelalte badge-uri.',
   },
+  first_appreciation: {
+    id: 'first_appreciation',
+    name: 'Inimă Caldă',
+    emoji: '💛',
+    description: 'Ai trimis prima ta apreciere.',
+  },
+  ten_appreciations: {
+    id: 'ten_appreciations',
+    name: 'Generos',
+    emoji: '🌟',
+    description: 'Ai trimis 10 aprecieri.',
+  },
+  fifteen_appreciations: {
+    id: 'fifteen_appreciations',
+    name: 'Suflet Mare',
+    emoji: '❤️',
+    description: 'Ai trimis 15 aprecieri. Ești inima taberei.',
+  },
 };
 
 export function computeBadges(
@@ -83,6 +101,7 @@ export function computeBadges(
   user: CampUser,
   allCheckIns: CheckIn[] = [],
   userTeamMap: Record<string, TeamId> = {},
+  appreciationCount: number = 0,
 ): Badge[] {
   const totalDays = days.length;
   const completed = checkIns.length;
@@ -174,7 +193,10 @@ export function computeBadges(
     captain: isCaptain ? Date.now() : null,
     team_spirit: hasTeamSpirit ? Date.now() : null,
     fire_team: isFireTeam ? Date.now() : null,
-    all_in: null, // calculat mai jos
+    all_in: null,
+    first_appreciation: appreciationCount >= 1 ? Date.now() : null,
+    ten_appreciations: appreciationCount >= 10 ? Date.now() : null,
+    fifteen_appreciations: appreciationCount >= 15 ? Date.now() : null,
   };
 
   const allOthersUnlocked = (

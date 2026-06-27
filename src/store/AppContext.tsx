@@ -19,6 +19,7 @@ import {
   performCheckIn,
   getAllCheckIns,
 } from '@/services/checkInService';
+import { getUserAppreciations } from '@/services/appreciationService';
 import { fetchDays } from '@/services/daysService';
 import { calculateStreak } from '@/features/streak/streakUtils';
 import { computeBadges } from '@/features/badges/badgeLogic';
@@ -37,7 +38,8 @@ type Action =
   | { type: 'SET_DAYS'; payload: AppState['days'] }
   | { type: 'RECOMPUTE_DERIVED' }
   | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] }
-  | { type: 'SET_USER_TEAM_MAP'; payload: Record<string, TeamId> };
+  | { type: 'SET_USER_TEAM_MAP'; payload: Record<string, TeamId> }
+  | { type: 'SET_APPRECIATION_COUNT'; payload: number };
 
 const initialState: AppState = {
   user: null,
@@ -49,6 +51,7 @@ const initialState: AppState = {
   days: [],
   loading: true,
   error: null,
+  appreciationCount: 0,
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -70,6 +73,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.user,
         state.allCheckIns,
         state.userTeamMap,
+        state.appreciationCount,
       );
       return { ...state, checkIns: action.payload, streak, badges };
     }
@@ -81,6 +85,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.user,
         action.payload,
         state.userTeamMap,
+        state.appreciationCount,
       );
       return { ...state, allCheckIns: action.payload, badges };
     }
@@ -94,6 +99,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.user,
         state.allCheckIns,
         state.userTeamMap,
+        state.appreciationCount,
       );
       return { ...state, checkIns: updated, streak, badges };
     }
@@ -106,6 +112,7 @@ function reducer(state: AppState, action: Action): AppState {
         state.user,
         state.allCheckIns,
         state.userTeamMap,
+        state.appreciationCount,
       );
       return { ...state, streak, badges };
     }
@@ -117,8 +124,21 @@ function reducer(state: AppState, action: Action): AppState {
         state.user,
         state.allCheckIns,
         action.payload,
+        state.appreciationCount,
       );
       return { ...state, userTeamMap: action.payload, badges };
+    }
+    case 'SET_APPRECIATION_COUNT': {
+      if (!state.user) return { ...state, appreciationCount: action.payload };
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        state.allCheckIns,
+        state.userTeamMap,
+        action.payload,
+      );
+      return { ...state, appreciationCount: action.payload, badges };
     }
     default:
       return state;
@@ -164,11 +184,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (profile) {
             dispatch({ type: 'SET_USER', payload: profile });
 
-            const [checkIns, allCheckIns, usersSnap] = await Promise.all([
-              getUserCheckIns(firebaseUser.uid),
-              getAllCheckIns(),
-              getDocs(collection(db, 'users')),
-            ]);
+            const [checkIns, allCheckIns, usersSnap, appreciations] =
+              await Promise.all([
+                getUserCheckIns(firebaseUser.uid),
+                getAllCheckIns(),
+                getDocs(collection(db, 'users')),
+                getUserAppreciations(firebaseUser.uid),
+              ]);
 
             const userTeamMap: Record<string, TeamId> = {};
             usersSnap.docs.forEach((d) => {
@@ -178,6 +200,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             dispatch({ type: 'SET_CHECKINS', payload: checkIns });
             dispatch({ type: 'SET_ALL_CHECKINS', payload: allCheckIns });
             dispatch({ type: 'SET_USER_TEAM_MAP', payload: userTeamMap });
+            dispatch({
+              type: 'SET_APPRECIATION_COUNT',
+              payload: appreciations.length,
+            });
           }
         } else {
           dispatch({ type: 'SET_USER', payload: null });

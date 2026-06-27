@@ -7,11 +7,12 @@ import type { CheckIn, DayConfig } from '@/types';
 import { Button, Card } from '@/components/ui';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
+import { AppreciationsAdminView } from '../appreciations/AppreciationsAdminView';
 
 const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET ?? 'campfire2024';
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
 
-type AdminTab = 'days' | 'participants' | 'qr';
+type AdminTab = 'days' | 'participants' | 'qr' | 'appreciations';
 
 export function AdminPage() {
   const { state } = useApp();
@@ -124,6 +125,7 @@ export function AdminPage() {
     { id: 'days', label: 'Days', emoji: '📅' },
     { id: 'qr', label: 'QR Codes', emoji: '📷' },
     { id: 'participants', label: 'Participants', emoji: '👥' },
+    { id: 'appreciations', label: 'Aprecieri', emoji: '💛' },
   ];
 
   // Unique users from check-ins
@@ -370,6 +372,14 @@ export function AdminPage() {
                 No check-ins yet.
               </p>
             )}
+          </>
+        )}
+
+        {/* Appreciations tab */}
+        {activeTab === 'appreciations' && (
+          <>
+            <h2 className='font-bold text-lg'>Aprecieri</h2>
+            <AppreciationsAdminView />
           </>
         )}
       </div>

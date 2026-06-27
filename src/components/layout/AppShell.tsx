@@ -14,6 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Acasa', icon: '🏠', activeIcon: '🏡' },
   { to: '/scan', label: 'Scaneaza', icon: '📷', activeIcon: '📸' },
   { to: '/badges', label: 'Insigne', icon: '🏅', activeIcon: '🥇' },
+  { to: '/appreciations', label: 'Aprecieri', icon: '💛', activeIcon: '💛' },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
