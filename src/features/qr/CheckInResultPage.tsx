@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactConfetti from 'react-confetti';
 import { useApp } from '@/store/AppContext';
-import { isDayAvailable } from '@/features/streak/streakUtils';
+import { isDayAvailable, isDayCompleted } from '@/features/streak/streakUtils';
 import { Button, Card } from '@/components/ui';
 import type { DayConfig } from '@/types';
 
@@ -12,7 +12,8 @@ type CheckInState =
   | 'success'
   | 'already_done'
   | 'not_yet'
-  | 'invalid';
+  | 'invalid'
+  | 'missed';
 
 export function CheckInResultPage() {
   const { dayId } = useParams<{ dayId: string }>();
@@ -53,7 +54,19 @@ export function CheckInResultPage() {
       return;
     }
 
-    // Perform check-in
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const unlockDate = new Date(foundDay.unlockDate);
+    unlockDate.setHours(0, 0, 0, 0);
+
+    if (unlockDate < today) {
+      const alreadyCompleted = isDayCompleted(foundDay.id, state.checkIns);
+      if (!alreadyCompleted) {
+        setCheckInState('missed');
+        return;
+      }
+    }
+
     actions.checkIn(dayId).then(({ success, alreadyDone }) => {
       if (alreadyDone) {
         setCheckInState('already_done');
@@ -242,6 +255,34 @@ export function CheckInResultPage() {
               size='lg'
               onClick={() => navigate('/scan')}>
               Scaneaza din nou
+            </Button>
+          </motion.div>
+        )}
+
+        {checkInState === 'missed' && day && (
+          <motion.div
+            key='missed'
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='flex flex-col items-center gap-5 text-center max-w-sm'>
+            <span className='text-7xl'>🪵</span>
+            <div>
+              <h1 className='text-2xl font-black text-text-primary'>
+                Ziua {day.dayNumber} a trecut
+              </h1>
+              <p className='text-text-secondary mt-1'>
+                Streak-ul tău s-a intrerupt.
+              </p>
+            </div>
+            <div className='bg-surface-800 border border-surface-700 rounded-2xl p-4 w-full'>
+              <p className='text-text-muted text-sm'>
+                Revin-o mâine pentru a începe un streak nou
+              </p>
+            </div>
+            <Button
+              size='lg'
+              onClick={() => navigate('/')}>
+              Înapoi acasă
             </Button>
           </motion.div>
         )}
