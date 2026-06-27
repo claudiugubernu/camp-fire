@@ -3,7 +3,16 @@ import {
   onAuthStateChanged,
   type User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+  serverTimestamp,
+} from 'firebase/firestore';
 import { auth, db } from './firebase';
 import type { CampUser, TeamId } from '@/types';
 
@@ -15,14 +24,37 @@ export async function signInAnonymous(): Promise<User> {
   return credential.user;
 }
 
+async function isNicknameTaken(nickname: string): Promise<boolean> {
+  const q = query(
+    collection(db, USERS_COLLECTION),
+    where('nickname', '==', nickname.toLowerCase()),
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+export async function checkNicknameTaken(nickname: string): Promise<boolean> {
+  const q = query(
+    collection(db, USERS_COLLECTION),
+    where('nickname', '==', nickname.toLowerCase()),
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
 export async function createUserProfile(
   uid: string,
   nickname: string,
   teamId: TeamId,
 ): Promise<CampUser> {
+  const taken = await isNicknameTaken(nickname);
+  if (taken) {
+    throw new Error('NICKNAME_TAKEN');
+  }
+
   const userRef = doc(db, USERS_COLLECTION, uid);
   const profile: Omit<CampUser, 'uid'> = {
-    nickname,
+    nickname: nickname.toLowerCase(),
     teamId,
     createdAt: Date.now(),
     isAdmin: false,
