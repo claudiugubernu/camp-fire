@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/store/AppContext';
 import type { TeamId } from '@/types';
 import { Button } from '@/components/ui';
-import { checkNicknameTaken, signInAnonymous } from '@/services/authService';
+import { checkNicknameTaken } from '@/services/authService';
 
 const TEAMS: { id: TeamId; name: string; emoji: string; color: string }[] = [
   {
@@ -42,6 +42,7 @@ export function OnboardingPage() {
   const [checkingNickname, setCheckingNickname] = useState(false);
 
   const handleContinue = async () => {
+    setCheckingNickname(true);
     setError(null);
 
     if (!/^[a-zA-Z0-9]+$/.test(nickname.trim())) {
@@ -49,11 +50,7 @@ export function OnboardingPage() {
       return;
     }
 
-    setCheckingNickname(true);
     try {
-      // Autentifică anonim mai întâi, ca să poată citi Firestore
-      await signInAnonymous();
-
       const taken = await checkNicknameTaken(nickname.trim());
 
       if (taken) {
@@ -104,7 +101,7 @@ export function OnboardingPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.25 }}
         className='text-text-secondary text-sm mb-10 text-center'>
-        Mentine flacara aprinsa 🔥
+        Mentine flacara aprinsa
       </motion.p>
 
       {/* Step 1 — Nickname */}

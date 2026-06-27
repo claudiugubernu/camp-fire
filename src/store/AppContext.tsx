@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   type ReactNode,
+  useRef,
 } from 'react';
 import type { AppState, CampUser, CheckIn, TeamId } from '@/types';
 import {
@@ -90,6 +91,7 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const onboardingInProgressRef = useRef(false);
 
   // Bootstrap: listen to auth, load user + data
   useEffect(() => {
@@ -101,7 +103,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'SET_DAYS', payload: days });
 
         if (firebaseUser) {
+          if (onboardingInProgressRef.current) {
+            dispatch({ type: 'SET_LOADING', payload: false });
+            return;
+          }
+
           const profile = await getUserProfile(firebaseUser.uid);
+
           if (profile) {
             dispatch({ type: 'SET_USER', payload: profile });
             const checkIns = await getUserCheckIns(firebaseUser.uid);
@@ -121,6 +129,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const onboard = useCallback(async (nickname: string, teamId: TeamId) => {
+    onboardingInProgressRef.current = true;
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const firebaseUser = await signInAnonymous();
@@ -135,6 +144,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_ERROR', payload: (err as Error).message });
       throw err;
     } finally {
+      onboardingInProgressRef.current = false;
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, []);
