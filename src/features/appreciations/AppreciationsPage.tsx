@@ -11,7 +11,7 @@ const MAX_PER_DAY = 5;
 const MAX_CHARS = 150;
 
 export function AppreciationsPage() {
-  const { state } = useApp();
+  const { state, actions } = useApp();
   const [message, setMessage] = useState('');
   const [todayCount, setTodayCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,7 @@ export function AppreciationsPage() {
       if (result.success) {
         setMessage('');
         setTodayCount((c) => c + 1);
+        actions.incrementAppreciationCount();
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else if (result.reason === 'LIMIT_REACHED') {
@@ -107,7 +108,7 @@ export function AppreciationsPage() {
             }}
             placeholder='ex: "Mulțumesc lui Alex pentru că m-a ajutat când aveam nevoie."'
             rows={4}
-            className='w-full bg-surface-800 border border-surface-600 rounded-2xl px-4 py-3 text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-fire-500 resize-none transition-colors'
+            className='w-full bg-surface-800 border border-surface-600 rounded-2xl px-4 py-3 text-text-primary text-base placeholder:text-text-muted focus:outline-none focus:border-fire-500 resize-none transition-colors'
           />
           <div className='flex items-center justify-between'>
             <p className='text-xs text-text-muted'>

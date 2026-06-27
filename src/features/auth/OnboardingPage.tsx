@@ -8,26 +8,26 @@ import { checkNicknameTaken } from '@/services/authService';
 const TEAMS: { id: TeamId; name: string; emoji: string; color: string }[] = [
   {
     id: 'alpha',
-    name: 'Alpha',
-    emoji: '🦅',
+    name: 'Pâinea Vieții',
+    emoji: '🍞',
     color: 'border-red-500 bg-red-900/20',
   },
   {
     id: 'beta',
-    name: 'Beta',
-    emoji: '🐺',
+    name: 'Lumina Lumii',
+    emoji: '☀️',
     color: 'border-blue-500 bg-blue-900/20',
   },
   {
     id: 'gamma',
-    name: 'Gamma',
-    emoji: '🦁',
+    name: 'Calea',
+    emoji: '🛤️',
     color: 'border-yellow-500 bg-yellow-900/20',
   },
   {
     id: 'delta',
-    name: 'Delta',
-    emoji: '🐉',
+    name: 'Învierea',
+    emoji: '✝️',
     color: 'border-green-500 bg-green-900/20',
   },
 ];

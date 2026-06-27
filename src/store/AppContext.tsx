@@ -39,7 +39,8 @@ type Action =
   | { type: 'RECOMPUTE_DERIVED' }
   | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] }
   | { type: 'SET_USER_TEAM_MAP'; payload: Record<string, TeamId> }
-  | { type: 'SET_APPRECIATION_COUNT'; payload: number };
+  | { type: 'SET_APPRECIATION_COUNT'; payload: number }
+  | { type: 'INCREMENT_APPRECIATION_COUNT' };
 
 const initialState: AppState = {
   user: null,
@@ -140,6 +141,19 @@ function reducer(state: AppState, action: Action): AppState {
       );
       return { ...state, appreciationCount: action.payload, badges };
     }
+    case 'INCREMENT_APPRECIATION_COUNT': {
+      const newCount = state.appreciationCount + 1;
+      if (!state.user) return { ...state, appreciationCount: newCount };
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        state.allCheckIns,
+        state.userTeamMap,
+        newCount,
+      );
+      return { ...state, appreciationCount: newCount, badges };
+    }
     default:
       return state;
   }
@@ -155,6 +169,7 @@ interface AppContextValue {
       dayId: string,
     ) => Promise<{ success: boolean; alreadyDone: boolean }>;
     refreshCheckIns: () => Promise<void>;
+    incrementAppreciationCount: () => void;
   };
 }
 
@@ -163,6 +178,10 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const onboardingInProgressRef = useRef(false);
+
+  const incrementAppreciationCount = useCallback(() => {
+    dispatch({ type: 'INCREMENT_APPRECIATION_COUNT' });
+  }, []);
 
   // Bootstrap: listen to auth, load user + data
   useEffect(() => {
@@ -259,7 +278,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{ state, actions: { onboard, checkIn, refreshCheckIns } }}>
+      value={{
+        state,
+        actions: {
+          onboard,
+          checkIn,
+          refreshCheckIns,
+          incrementAppreciationCount,
+        },
+      }}>
       {children}
     </AppContext.Provider>
   );
