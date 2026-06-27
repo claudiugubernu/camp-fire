@@ -195,6 +195,20 @@ export function OnboardingPage() {
           </div>
         </motion.div>
       )}
+
+      <div className='mt-8'>
+        <button
+          onClick={() => {
+            const secret = prompt('Admin secret:');
+            if (secret === import.meta.env.VITE_ADMIN_SECRET) {
+              localStorage.setItem('campfire_admin_bypass', 'true');
+              window.location.href = '/admin';
+            }
+          }}
+          className='text-xs text-text-muted opacity-50 hover:opacity-60 transition-opacity'>
+          Admin
+        </button>
+      </div>
     </div>
   );
 }

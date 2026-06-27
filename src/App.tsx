@@ -23,6 +23,10 @@ export default function App() {
           element={<OnboardingPage />}
         />
         <Route
+          path='/admin'
+          element={<AdminPage />}
+        />
+        <Route
           path='*'
           element={
             <Navigate
