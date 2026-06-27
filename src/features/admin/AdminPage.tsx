@@ -343,10 +343,6 @@ export function AdminPage() {
             </h2>
             {Object.entries(userStats).map(([uid, completedDayIds]) => (
               <Card key={uid}>
-                <p className='text-xs text-text-muted font-mono mb-2 truncate'>
-                  {uid}
-                </p>
-
                 <p className='font-bold text-text-primary'>
                   {userMap[uid] ?? 'Unknown'}
                 </p>
