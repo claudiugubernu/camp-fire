@@ -60,7 +60,7 @@ export function DashboardPage() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
             className='text-7xl mb-3'>
-            {streak.current > 0 && '🔥'.repeat(Math.min(streak.current, 7))}
+            {streak.current > 0 && '🔥'}
           </motion.div>
           <div className='text-6xl font-black gradient-fire mb-1'>
             {streak.current}
