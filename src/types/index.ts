@@ -47,7 +47,11 @@ export type BadgeId =
   | 'three_in_a_row'
   | 'halfway'
   | 'secret_seeker'
-  | 'first_fifteen';
+  | 'first_fifteen'
+  | 'captain'
+  | 'team_spirit'
+  | 'fire_team'
+  | 'all_in';
 
 export interface Badge {
   id: BadgeId;
@@ -68,4 +72,5 @@ export interface AppState {
   loading: boolean;
   error: string | null;
   allCheckIns: CheckIn[];
+  userTeamMap: Record<string, TeamId>;
 }
