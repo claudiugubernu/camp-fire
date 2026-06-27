@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/store/AppContext';
 import type { TeamId } from '@/types';
 import { Button } from '@/components/ui';
+import { checkNicknameTaken, signInAnonymous } from '@/services/authService';
 
 const TEAMS: { id: TeamId; name: string; emoji: string; color: string }[] = [
   {
@@ -38,6 +39,34 @@ export function OnboardingPage() {
   const [teamId, setTeamId] = useState<TeamId | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingNickname, setCheckingNickname] = useState(false);
+
+  const handleContinue = async () => {
+    setError(null);
+
+    if (!/^[a-zA-Z0-9]+$/.test(nickname.trim())) {
+      setError('Nickname-ul poate conține doar litere și cifre.');
+      return;
+    }
+
+    setCheckingNickname(true);
+    try {
+      // Autentifică anonim mai întâi, ca să poată citi Firestore
+      await signInAnonymous();
+
+      const taken = await checkNicknameTaken(nickname.trim());
+
+      if (taken) {
+        setError(`"${nickname.trim()}" e deja luat. Alege alt nume.`);
+      } else {
+        setStep(2);
+      }
+    } catch {
+      setError('Eroare de conexiune. Încearcă din nou.');
+    } finally {
+      setCheckingNickname(false);
+    }
+  };
 
   async function handleSubmit() {
     if (!nickname.trim() || !teamId) return;
@@ -95,19 +124,26 @@ export function OnboardingPage() {
               placeholder='e.g. Alex'
               value={nickname}
               maxLength={20}
-              onChange={(e) => setNickname(e.target.value)}
+              onChange={(e) => {
+                setNickname(e.target.value);
+                setError(null);
+              }}
+              disabled={checkingNickname}
               className='w-full bg-surface-800 border border-surface-600 rounded-2xl px-4 py-4 text-text-primary text-lg font-semibold placeholder:text-text-muted focus:outline-none focus:border-fire-500 transition-colors'
             />
             <p className='text-xs text-text-muted mt-1.5 text-right'>
               {nickname.length}/20
             </p>
+
+            {error && <p className='text-red-400 text-sm'>{error}</p>}
           </div>
 
           <Button
             size='lg'
             className='w-full'
             disabled={nickname.trim().length < 2}
-            onClick={() => setStep(2)}>
+            loading={checkingNickname}
+            onClick={handleContinue}>
             Alege echipa →
           </Button>
         </motion.div>
