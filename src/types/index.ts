@@ -46,7 +46,8 @@ export type BadgeId =
   | 'early_bird'
   | 'three_in_a_row'
   | 'halfway'
-  | 'secret_seeker';
+  | 'secret_seeker'
+  | 'first_fifteen';
 
 export interface Badge {
   id: BadgeId;
@@ -66,4 +67,5 @@ export interface AppState {
   days: DayConfig[];
   loading: boolean;
   error: string | null;
+  allCheckIns: CheckIn[];
 }

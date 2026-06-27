@@ -24,15 +24,6 @@ export async function signInAnonymous(): Promise<User> {
   return credential.user;
 }
 
-async function isNicknameTaken(nickname: string): Promise<boolean> {
-  const q = query(
-    collection(db, USERS_COLLECTION),
-    where('nickname', '==', nickname.toLowerCase()),
-  );
-  const snap = await getDocs(q);
-  return !snap.empty;
-}
-
 export async function checkNicknameTaken(nickname: string): Promise<boolean> {
   const q = query(
     collection(db, USERS_COLLECTION),
@@ -47,7 +38,7 @@ export async function createUserProfile(
   nickname: string,
   teamId: TeamId,
 ): Promise<CampUser> {
-  const taken = await isNicknameTaken(nickname);
+  const taken = await checkNicknameTaken(nickname);
   if (taken) {
     throw new Error('NICKNAME_TAKEN');
   }
