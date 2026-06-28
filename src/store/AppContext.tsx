@@ -201,6 +201,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const profile = await getUserProfile(firebaseUser.uid);
 
           if (profile) {
+            const days = await fetchDays();
+            dispatch({ type: 'SET_DAYS', payload: days });
+
             dispatch({ type: 'SET_USER', payload: profile });
 
             const [checkIns, allCheckIns, usersSnap, appreciations] =
