@@ -10,16 +10,11 @@ export function calculateStreak(
   days: DayConfig[],
 ): StreakInfo {
   const completedDayIds = new Set(checkIns.map((c) => c.dayId));
-
-  // Sort days by dayNumber ascending
   const sorted = [...days].sort((a, b) => a.dayNumber - b.dayNumber);
-
   const completedDays = sorted
     .filter((d) => completedDayIds.has(d.id))
     .map((d) => d.id);
 
-  // Build streak counting consecutive completions from the most recent completed day
-  let current = 0;
   let longest = 0;
   let runningStreak = 0;
 
@@ -29,32 +24,34 @@ export function calculateStreak(
       runningStreak++;
       if (runningStreak > longest) longest = runningStreak;
     } else {
-      // Only break current streak if the day was supposed to be done already
       const dayDate = new Date(day.unlockDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       dayDate.setHours(0, 0, 0, 0);
-
-      if (dayDate <= today) {
-        runningStreak = 0;
-      }
+      if (dayDate <= today) runningStreak = 0;
     }
   }
 
-  // Current streak = consecutive streak ending at the last completed day
-  current = 0;
+  // Current streak — merge înapoi dar ignoră ziua de AZI dacă nu e completată
+  let current = 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   for (let i = sorted.length - 1; i >= 0; i--) {
     const day = sorted[i];
     const dayDate = new Date(day.unlockDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     dayDate.setHours(0, 0, 0, 0);
 
-    if (dayDate > today) continue; // future days don't break streak
+    if (dayDate > today) continue; // zile viitoare — ignoră
+
+    if (dayDate.getTime() === today.getTime() && !completedDayIds.has(day.id)) {
+      continue; // ziua de azi necompletată — nu rupe streak-ul, o ignorăm
+    }
+
     if (completedDayIds.has(day.id)) {
       current++;
     } else {
-      break; // gap found
+      break; // zi trecută necompletată — streak rupt
     }
   }
 
