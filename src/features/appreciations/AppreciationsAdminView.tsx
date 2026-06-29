@@ -2,10 +2,24 @@ import { useState, useEffect } from 'react';
 import { getAllAppreciations } from '@/services/appreciationService';
 import { Card } from '@/components/ui';
 import type { Appreciation } from '@/types';
+import { motion } from 'framer-motion';
 
 export function AppreciationsAdminView() {
   const [appreciations, setAppreciations] = useState<Appreciation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+
+  function toggleUser(nickname: string) {
+    setExpandedUsers((prev) => {
+      const next = new Set(prev);
+      if (next.has(nickname)) {
+        next.delete(nickname);
+      } else {
+        next.add(nickname);
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     getAllAppreciations()
@@ -74,29 +88,43 @@ export function AppreciationsAdminView() {
         .sort(([, a], [, b]) => b.length - a.length)
         .map(([nickname, msgs]) => (
           <Card key={nickname}>
-            <div className='flex items-center justify-between mb-3'>
-              <p className='font-bold text-text-primary'>{nickname}</p>
-              <span className='text-fire-400 font-bold text-sm'>
-                {msgs.length} aprecieri
+            <button
+              onClick={() => toggleUser(nickname)}
+              className='w-full flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                <p className='font-bold text-text-primary'>{nickname}</p>
+                <span className='text-fire-400 font-bold text-sm'>
+                  {msgs.length} aprecieri
+                </span>
+              </div>
+              <span className='text-text-muted text-lg'>
+                {expandedUsers.has(nickname) ? '▲' : '▼'}
               </span>
-            </div>
-            <div className='flex flex-col gap-2'>
-              {msgs.map((a) => (
-                <div
-                  key={a.id}
-                  className='bg-surface-700 rounded-xl p-3'>
-                  <p className='text-text-primary text-sm'>{a.message}</p>
-                  <p className='text-text-muted text-xs mt-1'>
-                    {new Date(a.createdAt).toLocaleDateString('ro-RO', {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-              ))}
-            </div>
+            </button>
+
+            {expandedUsers.has(nickname) && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className='flex flex-col gap-2 mt-3 pt-3 border-t border-surface-700'>
+                {msgs.map((a) => (
+                  <div
+                    key={a.id}
+                    className='bg-surface-700 rounded-xl p-3'>
+                    <p className='text-text-primary text-sm'>{a.message}</p>
+                    <p className='text-text-muted text-xs mt-1'>
+                      {new Date(a.createdAt).toLocaleDateString('ro-RO', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
           </Card>
         ))}
 

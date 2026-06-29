@@ -17,6 +17,15 @@ export function AppreciationsPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [countLoading, setCountLoading] = useState(true);
+
+  useEffect(() => {
+    if (state.user) {
+      getTodayCount(state.user.uid)
+        .then(setTodayCount)
+        .finally(() => setCountLoading(false));
+    }
+  }, [state.user]);
 
   useEffect(() => {
     if (state.user) {
@@ -68,30 +77,43 @@ export function AppreciationsPage() {
         </p>
       </motion.div>
 
-      {/* Counter */}
-      <Card>
-        <div className='flex items-center justify-between'>
-          <p className='text-text-secondary text-sm'>Aprecieri trimise azi</p>
-          <div className='flex gap-1'>
-            {Array.from({ length: MAX_PER_DAY }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full ${
-                  i < todayCount ? 'bg-fire-500' : 'bg-surface-700'
-                }`}
-              />
-            ))}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className='flex flex-col gap-3'>
+        <Card>
+          <div className='flex items-center justify-between'>
+            <p className='text-text-secondary text-sm'>Aprecieri trimise azi</p>
+            {countLoading ? (
+              <div className='w-8 h-8 border-2 border-surface-700 border-t-fire-400 rounded-full animate-spin' />
+            ) : (
+              <div className='flex gap-1'>
+                {Array.from({ length: MAX_PER_DAY }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${
+                      i < todayCount ? 'bg-fire-500' : 'bg-surface-700'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-        <p className='text-xs text-text-muted mt-1'>
-          {remaining > 0
-            ? `Mai poți trimite ${remaining} aprecieri astăzi`
-            : 'Ai trimis toate aprecierile de azi. Revino mâine!'}
-        </p>
-      </Card>
+          {!countLoading && (
+            <p className='text-xs text-text-muted mt-1'>
+              {remaining > 0
+                ? `Mai poți trimite ${remaining} aprecieri astăzi`
+                : 'Ai trimis toate aprecierile de azi. Revino mâine!'}
+            </p>
+          )}
+        </Card>
+      </motion.div>
 
-      {/* Form */}
-      {remaining > 0 && (
+      {countLoading ? (
+        <div className='flex justify-center py-8'>
+          <div className='w-8 h-8 border-2 border-surface-700 border-t-fire-400 rounded-full animate-spin' />
+        </div>
+      ) : remaining > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,9 +159,8 @@ export function AppreciationsPage() {
             💛 Trimite aprecierea
           </Button>
         </motion.div>
-      )}
+      ) : null}
 
-      {/* Info */}
       <Card className='bg-surface-800/50 border-surface-700'>
         <p className='text-xs text-text-muted leading-relaxed'>
           💡 Fii sincer și specific — un mesaj concret înseamnă mult mai mult
