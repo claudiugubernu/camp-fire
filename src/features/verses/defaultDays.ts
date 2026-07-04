@@ -1,6 +1,6 @@
 import type { DayConfig } from '@/types';
 
-const CAMP_START = import.meta.env.VITE_CAMP_START_DATE ?? '2026-07-01';
+const CAMP_START = import.meta.env.VITE_CAMP_START_DATE ?? '2026-07-04';
 
 function addDays(base: string, n: number): string {
   const d = new Date(base);

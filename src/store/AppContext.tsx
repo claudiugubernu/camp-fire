@@ -7,7 +7,13 @@ import {
   type ReactNode,
   useRef,
 } from 'react';
-import type { AppState, CampUser, CheckIn, TeamId } from '@/types';
+import type {
+  AppState,
+  CampUser,
+  CheckIn,
+  QuestionAnswer,
+  TeamId,
+} from '@/types';
 import {
   signInAnonymous,
   createUserProfile,
@@ -23,6 +29,7 @@ import { getUserAppreciations } from '@/services/appreciationService';
 import { fetchDays } from '@/services/daysService';
 import { calculateStreak } from '@/features/streak/streakUtils';
 import { computeBadges } from '@/features/badges/badgeLogic';
+import { getUserAnswers, getAllAnswers } from '@/services/questionService';
 
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
@@ -40,7 +47,10 @@ type Action =
   | { type: 'SET_ALL_CHECKINS'; payload: CheckIn[] }
   | { type: 'SET_USER_TEAM_MAP'; payload: Record<string, TeamId> }
   | { type: 'SET_APPRECIATION_COUNT'; payload: number }
-  | { type: 'INCREMENT_APPRECIATION_COUNT' };
+  | { type: 'INCREMENT_APPRECIATION_COUNT' }
+  | { type: 'SET_MY_ANSWERS'; payload: QuestionAnswer[] }
+  | { type: 'SET_ALL_ANSWERS'; payload: QuestionAnswer[] }
+  | { type: 'ADD_ANSWER'; payload: QuestionAnswer };
 
 const initialState: AppState = {
   user: null,
@@ -53,6 +63,8 @@ const initialState: AppState = {
   loading: true,
   error: null,
   appreciationCount: 0,
+  myAnswers: [],
+  allAnswers: [],
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -154,6 +166,38 @@ function reducer(state: AppState, action: Action): AppState {
       );
       return { ...state, appreciationCount: newCount, badges };
     }
+    case 'SET_MY_ANSWERS':
+      return { ...state, myAnswers: action.payload };
+
+    case 'SET_ALL_ANSWERS':
+      return { ...state, allAnswers: action.payload };
+
+    case 'ADD_ANSWER': {
+      const updatedMyAnswers = [...state.myAnswers, action.payload];
+      const updatedAllAnswers = [...state.allAnswers, action.payload];
+      if (!state.user)
+        return {
+          ...state,
+          myAnswers: updatedMyAnswers,
+          allAnswers: updatedAllAnswers,
+        };
+      const badges = computeBadges(
+        state.checkIns,
+        state.days,
+        state.user,
+        state.allCheckIns,
+        state.userTeamMap,
+        state.appreciationCount,
+        updatedMyAnswers,
+        updatedAllAnswers,
+      );
+      return {
+        ...state,
+        myAnswers: updatedMyAnswers,
+        allAnswers: updatedAllAnswers,
+        badges,
+      };
+    }
     default:
       return state;
   }
@@ -170,6 +214,7 @@ interface AppContextValue {
     ) => Promise<{ success: boolean; alreadyDone: boolean }>;
     refreshCheckIns: () => Promise<void>;
     incrementAppreciationCount: () => void;
+    addAnswer: (answer: QuestionAnswer) => void;
   };
 }
 
@@ -206,13 +251,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
             dispatch({ type: 'SET_USER', payload: profile });
 
-            const [checkIns, allCheckIns, usersSnap, appreciations] =
-              await Promise.all([
-                getUserCheckIns(firebaseUser.uid),
-                getAllCheckIns(),
-                getDocs(collection(db, 'users')),
-                getUserAppreciations(firebaseUser.uid),
-              ]);
+            const [
+              checkIns,
+              allCheckIns,
+              usersSnap,
+              appreciations,
+              myAnswers,
+              allAnswers,
+            ] = await Promise.all([
+              getUserCheckIns(firebaseUser.uid),
+              getAllCheckIns(),
+              getDocs(collection(db, 'users')),
+              getUserAppreciations(firebaseUser.uid),
+              getUserAnswers(firebaseUser.uid),
+              getAllAnswers(),
+            ]);
 
             const userTeamMap: Record<string, TeamId> = {};
             usersSnap.docs.forEach((d) => {
@@ -226,6 +279,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
               type: 'SET_APPRECIATION_COUNT',
               payload: appreciations.length,
             });
+            dispatch({ type: 'SET_MY_ANSWERS', payload: myAnswers });
+            dispatch({ type: 'SET_ALL_ANSWERS', payload: allAnswers });
           }
         } else {
           dispatch({ type: 'SET_USER', payload: null });
@@ -273,6 +328,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [state.user],
   );
 
+  const addAnswer = useCallback((answer: QuestionAnswer) => {
+    dispatch({ type: 'ADD_ANSWER', payload: answer });
+  }, []);
+
   const refreshCheckIns = useCallback(async () => {
     if (!state.user) return;
     const checkIns = await getUserCheckIns(state.user.uid);
@@ -288,6 +347,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           checkIn,
           refreshCheckIns,
           incrementAppreciationCount,
+          addAnswer,
         },
       }}>
       {children}

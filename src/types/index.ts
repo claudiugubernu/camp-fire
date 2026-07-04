@@ -46,7 +46,11 @@ export type BadgeId =
   | 'all_in'
   | 'first_appreciation'
   | 'ten_appreciations'
-  | 'fifteen_appreciations';
+  | 'fifteen_appreciations'
+  | 'first_answer'
+  | 'team_answer'
+  | 'all_answers'
+  | 'team_all_answers';
 
 export interface Badge {
   id: BadgeId;
@@ -65,6 +69,22 @@ export interface Appreciation {
   createdAt: number;
 }
 
+export interface DayQuestion {
+  dayId: string;
+  question: string;
+  options: [string, string, string, string];
+  correctOption: 0 | 1 | 2 | 3;
+}
+
+export interface QuestionAnswer {
+  userId: string;
+  teamId: TeamId;
+  dayId: string;
+  selectedOption: number;
+  correct: boolean;
+  answeredAt: number;
+}
+
 export interface AppState {
   user: CampUser | null;
   checkIns: CheckIn[];
@@ -76,4 +96,6 @@ export interface AppState {
   allCheckIns: CheckIn[];
   userTeamMap: Record<string, TeamId>;
   appreciationCount: number;
+  myAnswers: QuestionAnswer[];
+  allAnswers: QuestionAnswer[];
 }

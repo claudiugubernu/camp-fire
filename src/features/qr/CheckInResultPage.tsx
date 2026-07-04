@@ -5,7 +5,9 @@ import ReactConfetti from 'react-confetti';
 import { useApp } from '@/store/AppContext';
 import { isDayAvailable, isDayCompleted } from '@/features/streak/streakUtils';
 import { Button, Card } from '@/components/ui';
-import type { DayConfig } from '@/types';
+import type { DayConfig, DayQuestion, QuestionAnswer } from '@/types';
+import { fetchQuestions, getUserAnswers } from '@/services/questionService';
+import { QuestionCard } from '@/features/questions/QuestionCard';
 
 type CheckInState =
   | 'loading'
@@ -26,6 +28,11 @@ export function CheckInResultPage() {
     height: window.innerHeight,
   });
   const hasRun = useRef(false);
+
+  const [question, setQuestion] = useState<DayQuestion | null>(null);
+  const [existingAnswer, setExistingAnswer] = useState<QuestionAnswer | null>(
+    null,
+  );
 
   useEffect(() => {
     const handler = () =>
@@ -67,11 +74,22 @@ export function CheckInResultPage() {
       }
     }
 
-    actions.checkIn(dayId).then(({ success, alreadyDone }) => {
+    actions.checkIn(dayId).then(async ({ success, alreadyDone }) => {
       if (alreadyDone) {
         setCheckInState('already_done');
       } else if (success) {
         setCheckInState('success');
+      }
+
+      if (success || alreadyDone) {
+        const [questions, answers] = await Promise.all([
+          fetchQuestions(),
+          state.user ? getUserAnswers(state.user.uid) : Promise.resolve([]),
+        ]);
+        const dayQuestion = questions.find((q) => q.dayId === dayId) ?? null;
+        const dayAnswer = answers.find((a) => a.dayId === dayId) ?? null;
+        setQuestion(dayQuestion);
+        setExistingAnswer(dayAnswer);
       }
     });
   }, [dayId, state.days, state.loading, actions]);
@@ -157,6 +175,22 @@ export function CheckInResultPage() {
                 {day.challenge}
               </p>
             </Card>
+
+            {question && (
+              <Card className='text-left'>
+                <p className='text-xs font-bold text-text-muted uppercase tracking-widest mb-3'>
+                  Întrebarea Zilei
+                </p>
+                <QuestionCard
+                  question={question}
+                  existingAnswer={existingAnswer}
+                  onAnswered={(answer) => {
+                    setExistingAnswer(answer);
+                    actions.addAnswer(answer);
+                  }}
+                />
+              </Card>
+            )}
 
             <Button
               size='lg'

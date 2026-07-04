@@ -5,6 +5,7 @@ import type {
   DayConfig,
   CampUser,
   TeamId,
+  QuestionAnswer,
 } from '@/types';
 
 export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
@@ -93,6 +94,30 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     emoji: '❤️',
     description: 'Ai trimis 15 aprecieri. Ești inima taberei.',
   },
+  first_answer: {
+    id: 'first_answer',
+    name: 'Primul Răspuns',
+    emoji: '🎯',
+    description: 'Ai răspuns corect la prima întrebare.',
+  },
+  team_answer: {
+    id: 'team_answer',
+    name: 'Echipă Deșteaptă',
+    emoji: '🧠',
+    description: 'Toată echipa ta a răspuns corect la aceeași întrebare.',
+  },
+  all_answers: {
+    id: 'all_answers',
+    name: 'Maestrul',
+    emoji: '🏆',
+    description: 'Ai răspuns corect la toate întrebările.',
+  },
+  team_all_answers: {
+    id: 'team_all_answers',
+    name: 'Echipa Perfectă',
+    emoji: '💎',
+    description: 'Toată echipa ta a răspuns corect la toate întrebările.',
+  },
 };
 
 export function computeBadges(
@@ -102,6 +127,8 @@ export function computeBadges(
   allCheckIns: CheckIn[] = [],
   userTeamMap: Record<string, TeamId> = {},
   appreciationCount: number = 0,
+  myAnswers: QuestionAnswer[] = [],
+  allAnswers: QuestionAnswer[] = [],
 ): Badge[] {
   const totalDays = days.length;
   const completed = checkIns.length;
@@ -177,6 +204,38 @@ export function computeBadges(
   const maxTeamTotal = Math.max(...Object.values(checkInsByTeam), 0);
   const isFireTeam = myTeamTotal > 0 && myTeamTotal === maxTeamTotal;
 
+  const myCorrectAnswers = myAnswers.filter((a) => a.correct);
+  const totalDaysWithQuestions = days.length;
+  const hasTeamAnswer = days.some((day) => {
+    const correctForDay = new Set(
+      allAnswers
+        .filter(
+          (a) =>
+            a.dayId === day.id && a.correct && myTeamUserIds.includes(a.userId),
+        )
+        .map((a) => a.userId),
+    );
+    return (
+      myTeamUserIds.length > 0 &&
+      myTeamUserIds.every((uid) => correctForDay.has(uid))
+    );
+  });
+
+  const hasTeamAllAnswers = days.every((day) => {
+    const correctForDay = new Set(
+      allAnswers
+        .filter(
+          (a) =>
+            a.dayId === day.id && a.correct && myTeamUserIds.includes(a.userId),
+        )
+        .map((a) => a.userId),
+    );
+    return (
+      myTeamUserIds.length > 0 &&
+      myTeamUserIds.every((uid) => correctForDay.has(uid))
+    );
+  });
+
   const unlockMap: Record<BadgeId, number | null> = {
     explorer:
       completed >= 1
@@ -197,6 +256,12 @@ export function computeBadges(
     first_appreciation: appreciationCount >= 1 ? Date.now() : null,
     ten_appreciations: appreciationCount >= 10 ? Date.now() : null,
     fifteen_appreciations: appreciationCount >= 15 ? Date.now() : null,
+    first_answer:
+      myCorrectAnswers.length >= 1 ? myCorrectAnswers[0].answeredAt : null,
+    team_answer: hasTeamAnswer ? Date.now() : null,
+    all_answers:
+      myCorrectAnswers.length >= totalDaysWithQuestions ? Date.now() : null,
+    team_all_answers: hasTeamAllAnswers ? Date.now() : null,
   };
 
   const allOthersUnlocked = (
