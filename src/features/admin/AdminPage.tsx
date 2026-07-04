@@ -8,11 +8,12 @@ import { Button, Card } from '@/components/ui';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { AppreciationsAdminView } from '../appreciations/AppreciationsAdminView';
+import { QuestionsAdminView } from '../questions/QuestionAdminView';
 
 const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET ?? 'campfire2024';
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
 
-type AdminTab = 'days' | 'participants' | 'qr' | 'appreciations';
+type AdminTab = 'days' | 'participants' | 'qr' | 'appreciations' | 'questions';
 
 export function AdminPage() {
   const { state } = useApp();
@@ -126,6 +127,7 @@ export function AdminPage() {
     { id: 'qr', label: 'QR Codes', emoji: '📷' },
     { id: 'participants', label: 'Participants', emoji: '👥' },
     { id: 'appreciations', label: 'Aprecieri', emoji: '💛' },
+    { id: 'questions', label: 'Întrebări', emoji: '❓' },
   ];
 
   // Unique users from check-ins
@@ -138,12 +140,12 @@ export function AdminPage() {
   return (
     <div className='flex flex-col min-h-full'>
       {/* Tab bar */}
-      <div className='flex border-b border-surface-800 bg-surface-900 sticky top-0 z-10'>
+      <div className='flex border-b border-surface-800 bg-surface-900 sticky top-0 z-10 gap-4 pt-2 px-2 w-full overflow-x-auto'>
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm font-semibold transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm font-semibold transition-colors whitespace-nowrap ${
               activeTab === tab.id
                 ? 'text-fire-400 border-b-2 border-fire-400'
                 : 'text-text-muted'
@@ -382,6 +384,9 @@ export function AdminPage() {
             <AppreciationsAdminView />
           </>
         )}
+
+        {/* Questions tab */}
+        {activeTab === 'questions' && <QuestionsAdminView />}
       </div>
 
       {/* Toast */}
