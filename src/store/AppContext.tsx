@@ -50,7 +50,8 @@ type Action =
   | { type: 'INCREMENT_APPRECIATION_COUNT' }
   | { type: 'SET_MY_ANSWERS'; payload: QuestionAnswer[] }
   | { type: 'SET_ALL_ANSWERS'; payload: QuestionAnswer[] }
-  | { type: 'ADD_ANSWER'; payload: QuestionAnswer };
+  | { type: 'ADD_ANSWER'; payload: QuestionAnswer }
+  | { type: 'SET_USER_NICKNAME_MAP'; payload: Record<string, string> };
 
 const initialState: AppState = {
   user: null,
@@ -65,6 +66,7 @@ const initialState: AppState = {
   appreciationCount: 0,
   myAnswers: [],
   allAnswers: [],
+  userNicknameMap: {},
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -198,6 +200,8 @@ function reducer(state: AppState, action: Action): AppState {
         badges,
       };
     }
+    case 'SET_USER_NICKNAME_MAP':
+      return { ...state, userNicknameMap: action.payload };
     default:
       return state;
   }
@@ -268,13 +272,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ]);
 
             const userTeamMap: Record<string, TeamId> = {};
+            const userNicknameMap: Record<string, string> = {};
+
             usersSnap.docs.forEach((d) => {
               userTeamMap[d.id] = d.data().teamId as TeamId;
+              userNicknameMap[d.id] = d.data().nickname as string;
             });
 
             dispatch({ type: 'SET_CHECKINS', payload: checkIns });
             dispatch({ type: 'SET_ALL_CHECKINS', payload: allCheckIns });
             dispatch({ type: 'SET_USER_TEAM_MAP', payload: userTeamMap });
+            dispatch({
+              type: 'SET_USER_NICKNAME_MAP',
+              payload: userNicknameMap,
+            });
             dispatch({
               type: 'SET_APPRECIATION_COUNT',
               payload: appreciations.length,

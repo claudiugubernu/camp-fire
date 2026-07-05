@@ -34,6 +34,8 @@ export function DashboardPage() {
   const isTodayDone = todayDay ? isDayCompleted(todayDay.id, checkIns) : false;
   const completedDays = streak.completedDays;
 
+  console.log('my teamId:', user?.teamId);
+
   return (
     <div className='px-5 py-6 flex flex-col gap-6 pb-6'>
       {/* Welcome */}
@@ -231,6 +233,65 @@ export function DashboardPage() {
             </p>
           )}
         </div>
+      </motion.div>
+
+      {/* Echipa mea */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}>
+        <SectionTitle>Echipa mea · {user?.teamId}</SectionTitle>
+        <Card>
+          {Object.entries(state.userTeamMap)
+            .filter(([, teamId]) => teamId === user?.teamId)
+
+            .map(([uid]) => {
+              const nickname = state.userNicknameMap[uid] ?? uid;
+              const completedToday = todayDay
+                ? state.allCheckIns.some(
+                    (c) => c.userId === uid && c.dayId === todayDay.id,
+                  )
+                : false;
+              const totalCompleted = state.allCheckIns.filter(
+                (c) => c.userId === uid,
+              ).length;
+              const isMe = uid === user?.uid;
+              return (
+                <div
+                  key={uid}
+                  className='flex items-center justify-between py-3 border-b border-surface-700 last:border-0'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-lg'>
+                      {completedToday ? '🔥' : '💤'}
+                    </span>
+                    <div>
+                      <p
+                        className={`text-sm font-semibold ${isMe ? 'text-fire-400' : 'text-text-primary'}`}>
+                        {nickname}
+                      </p>
+                      <p className='text-xs text-text-muted'>
+                        {totalCompleted}/{days.length} zile
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex gap-0.5'>
+                    {Array.from({ length: days.length }).map((_, i) => {
+                      const day = days[i];
+                      const done = state.allCheckIns.some(
+                        (c) => c.userId === uid && c.dayId === day.id,
+                      );
+                      return (
+                        <div
+                          key={i}
+                          className={`w-2 h-2 rounded-full ${done ? 'bg-fire-500' : 'bg-surface-700'}`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+        </Card>
       </motion.div>
 
       {/* Reset */}

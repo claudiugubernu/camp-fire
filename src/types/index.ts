@@ -98,4 +98,5 @@ export interface AppState {
   appreciationCount: number;
   myAnswers: QuestionAnswer[];
   allAnswers: QuestionAnswer[];
+  userNicknameMap: Record<string, string>;
 }
