@@ -7,27 +7,27 @@ import { checkNicknameTaken } from '@/services/authService';
 
 const TEAMS: { id: TeamId; name: string; emoji: string; color: string }[] = [
   {
-    id: 'paine',
-    name: 'Pâinea Vieții',
-    emoji: '🍞',
+    id: 'rechini',
+    name: 'Rechinii lui Petru',
+    emoji: '🦈',
     color: 'border-red-500 bg-red-900/20',
   },
   {
-    id: 'lumina',
-    name: 'Lumina Lumii',
-    emoji: '☀️',
+    id: 'calmari',
+    name: 'Calmarii Apostolici',
+    emoji: '🦑',
     color: 'border-blue-500 bg-blue-900/20',
   },
   {
-    id: 'calea',
-    name: 'Calea',
-    emoji: '🛤️',
+    id: 'ancora',
+    name: 'Ancora Credinței',
+    emoji: '⚓',
     color: 'border-yellow-500 bg-yellow-900/20',
   },
   {
-    id: 'invierea',
-    name: 'Învierea',
-    emoji: '✝️',
+    id: 'valuri',
+    name: 'Valurile Haosului',
+    emoji: '🌊',
     color: 'border-green-500 bg-green-900/20',
   },
 ];
