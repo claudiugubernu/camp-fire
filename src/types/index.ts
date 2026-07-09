@@ -1,4 +1,4 @@
-export type TeamId = 'paine' | 'lumina' | 'calea' | 'invierea';
+export type TeamId = 'rechini' | 'calmari' | 'ancora' | 'valuri';
 
 export interface CampUser {
   uid: string;
