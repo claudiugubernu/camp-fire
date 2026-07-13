@@ -172,7 +172,17 @@ export function DashboardPage() {
             <motion.div
               initial={{ width: 0 }}
               animate={{
-                width: `${(streak.totalCompleted / Math.max(days.length, 1)) * 100}%`,
+                width: `${
+                  (days.filter((d) => {
+                    const unlockDate = new Date(d.unlockDate);
+                    const today = new Date();
+                    unlockDate.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+                    return unlockDate <= today;
+                  }).length /
+                    Math.max(days.length, 1)) *
+                  100
+                }%`,
               }}
               transition={{ duration: 0.8, ease: 'easeOut', delay: 0.5 }}
               className='h-full bg-gradient-to-r from-fire-600 to-fire-400 rounded-full'

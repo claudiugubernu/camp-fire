@@ -148,8 +148,38 @@ export function computeBadges(
     }
   }
 
-  // Secret badge: user nickname contains "fire" (case-insensitive)
-  const secretUnlocked = user.nickname.toLowerCase().includes('fire');
+  const secrets = [
+    'lumina',
+    'pastorul',
+    'bun',
+    'm28',
+    'crestin',
+    'tabara',
+    'paine',
+    'painea',
+    'vietii',
+    'foc',
+    'flacara',
+    'isus',
+    'jesus',
+    'cristos',
+    'hristos',
+    'Ioan',
+    'mare',
+    'plaja',
+    'rechin',
+    'valuri',
+    'ancora',
+    'calmar',
+    'campfire',
+    'camp',
+    'fire',
+  ];
+
+  // Secret badge: user nickname contains any "secrets" (case-insensitive)
+  const secretUnlocked = secrets.some((s) =>
+    user.nickname.toLowerCase().includes(s.toLowerCase()),
+  );
 
   const userFirstCheckIn =
     checkIns.length > 0
