@@ -34,8 +34,6 @@ export function DashboardPage() {
   const isTodayDone = todayDay ? isDayCompleted(todayDay.id, checkIns) : false;
   const completedDays = streak.completedDays;
 
-  console.log('my teamId:', user?.teamId);
-
   return (
     <div className='px-5 py-6 flex flex-col gap-6 pb-6'>
       {/* Welcome */}
