@@ -12,14 +12,19 @@ import { db } from './firebase';
 import type { CheckIn } from '@/types';
 
 const CHECKINS_COLLECTION = 'checkins';
-const EARLY_BIRD_HOUR = 9; // before 9 AM local time
+const EARLY_BIRD_START_HOUR = 15; // UTC
+const EARLY_BIRD_WINDOW_MINUTES = 10;
 
 function makeDocId(userId: string, dayId: string): string {
   return `${userId}_${dayId}`;
 }
 
 function isEarlyBird(): boolean {
-  return new Date().getHours() < EARLY_BIRD_HOUR;
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+
+  return hours === EARLY_BIRD_START_HOUR && minutes < EARLY_BIRD_WINDOW_MINUTES;
 }
 
 export async function performCheckIn(

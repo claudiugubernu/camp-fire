@@ -19,8 +19,7 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     id: 'fire_keeper',
     name: 'Paznicul Flăcării',
     emoji: '🔥',
-    description:
-      'Ai completat toate cele 7 zile. Flacăra nu s-a stins niciodată.',
+    description: 'Ai completat toate zilele. Flacăra nu s-a stins niciodată.',
   },
   early_bird: {
     id: 'early_bird',
@@ -44,7 +43,7 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     id: 'halfway',
     name: 'La Jumătate',
     emoji: '🏕️',
-    description: 'Ai completat 4 din 7 zile.',
+    description: 'Ai completat 2 din 4 zile.',
   },
   secret_seeker: {
     id: 'secret_seeker',
@@ -277,7 +276,7 @@ export function computeBadges(
       : null,
     first_fifteen: isFirstFifteen && userFirstCheckIn ? userFirstCheckIn : null,
     three_in_a_row: maxConsecutive >= 3 ? Date.now() : null,
-    halfway: completed >= 4 ? Date.now() : null,
+    halfway: completed >= 2 ? Date.now() : null,
     secret_seeker: secretUnlocked ? Date.now() : null,
     captain: isCaptain ? Date.now() : null,
     team_spirit: hasTeamSpirit ? Date.now() : null,
